@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.cardoso.shareyourtime.R;
@@ -48,6 +49,25 @@ public class AlarmFragment extends Fragment {
         alarmViewModel.getAllAlarms().observe(getViewLifecycleOwner(), alarms -> {
             adapter.submitList(alarms);
         });
+
+        // Añadir funcionalidad de deslizar para eliminar
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, 
+                                 @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                int position = viewHolder.getAdapterPosition();
+                Alarm alarm = adapter.getCurrentList().get(position);
+                // Cancelar la alarma programada
+                cancelAlarm(alarm);
+                // Eliminar de la base de datos
+                alarmViewModel.delete(alarm);
+            }
+        }).attachToRecyclerView(recyclerView);
 
         fabAddAlarm = binding.fabAddAlarm;
         fabAddAlarm.setOnClickListener(v -> showTimePickerDialog());
@@ -116,6 +136,21 @@ public class AlarmFragment extends Fragment {
                 calendar.getTimeInMillis(),
                 pendingIntent
             );
+        }
+    }
+
+    private void cancelAlarm(Alarm alarm) {
+        Intent intent = new Intent(getContext(), AlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+            getContext(),
+            alarm.getId(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+        
+        // Cancelar la alarma
+        if (alarmManager != null) {
+            alarmManager.cancel(pendingIntent);
         }
     }
 

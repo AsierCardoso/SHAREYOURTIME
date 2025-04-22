@@ -84,4 +84,5 @@
     <string name="timezone_nzst">New Zealand Standard Time</string>
     <string name="alarm_title">Alarm Title</string>
     <string name="alarm_description">Alarm Description</string>
+    <string name="cannot_remove_default_timezone">No se puede eliminar la zona horaria predeterminada</string>
 </resources>
