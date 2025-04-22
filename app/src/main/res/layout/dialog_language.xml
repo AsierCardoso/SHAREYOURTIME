@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/radio_group_language"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <RadioButton
+        android:id="@+id/radio_spanish"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/lang_es" />
+
+    <RadioButton
+        android:id="@+id/radio_english"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/lang_en" />
+
+</RadioGroup> 

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/nav_alarm">
+
+    <fragment
+        android:id="@+id/nav_alarm"
+        android:name="com.cardoso.shareyourtime.ui.alarm.AlarmFragment"
+        android:label="@string/alarm"
+        tools:layout="@layout/fragment_alarm" />
+
+    <fragment
+        android:id="@+id/nav_world_clock"
+        android:name="com.cardoso.shareyourtime.ui.worldclock.WorldClockFragment"
+        android:label="@string/world_clock"
+        tools:layout="@layout/fragment_world_clock" />
+
+    <fragment
+        android:id="@+id/nav_stopwatch"
+        android:name="com.cardoso.shareyourtime.ui.stopwatch.StopwatchFragment"
+        android:label="@string/stopwatch"
+        tools:layout="@layout/fragment_stopwatch" />
+
+    <fragment
+        android:id="@+id/nav_timer"
+        android:name="com.cardoso.shareyourtime.ui.timer.TimerFragment"
+        android:label="@string/timer"
+        tools:layout="@layout/fragment_timer" />
+
+    <fragment
+        android:id="@+id/nav_tasks"
+        android:name="com.cardoso.shareyourtime.ui.tasks.TasksFragment"
+        android:label="@string/tasks"
+        tools:layout="@layout/fragment_tasks" />
+
+</navigation> 

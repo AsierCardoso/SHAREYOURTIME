@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_tasks"
+            android:icon="@android:drawable/ic_menu_agenda"
+            android:title="@string/tasks" />
+        <item
+            android:id="@+id/nav_world_clock"
+            android:icon="@android:drawable/ic_menu_compass"
+            android:title="@string/world_clock" />
+    </group>
+    
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_theme"
+            android:title="@string/theme">
+            <menu>
+                <item
+                    android:id="@+id/nav_theme_light"
+                    android:title="@string/theme_light" />
+                <item
+                    android:id="@+id/nav_theme_dark"
+                    android:title="@string/theme_dark" />
+            </menu>
+        </item>
+    </group>
+    
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_language"
+            android:title="@string/language">
+            <menu>
+                <item
+                    android:id="@+id/nav_language_english"
+                    android:title="@string/lang_en" />
+                <item
+                    android:id="@+id/nav_language_spanish"
+                    android:title="@string/lang_es" />
+            </menu>
+        </item>
+    </group>
+</menu> 
