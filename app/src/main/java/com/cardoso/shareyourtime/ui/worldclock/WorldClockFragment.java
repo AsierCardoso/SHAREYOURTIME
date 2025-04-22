@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -42,6 +43,30 @@ public class WorldClockFragment extends Fragment {
         
         adapter = new WorldClockAdapter(timeZones);
         recyclerView.setAdapter(adapter);
+
+        // Añadir funcionalidad de deslizar para eliminar
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, 
+                                 @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                int position = viewHolder.getAdapterPosition();
+                // No permitir eliminar la zona horaria predeterminada (primera posición)
+                if (position == 0) {
+                    adapter.notifyItemChanged(0);
+                    Toast.makeText(getContext(), R.string.cannot_remove_default_timezone, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                
+                // Eliminar la zona horaria de la lista
+                timeZones.remove(position);
+                adapter.notifyItemRemoved(position);
+            }
+        }).attachToRecyclerView(recyclerView);
 
         FloatingActionButton fab = root.findViewById(R.id.fab);
         fab.setOnClickListener(view -> showTimeZonePicker());

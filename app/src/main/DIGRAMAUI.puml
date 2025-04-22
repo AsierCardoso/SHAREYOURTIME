@@ -1,0 +1,119 @@
+@startuml
+' Estilos y configuraciones
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classFontSize 14
+skinparam arrowColor #444444
+skinparam classBackgroundColor #F5F5F5
+skinparam classBorderColor #444444
+
+package "UI" {
+    package "Timer" {
+        class TimerFragment {
+            - binding: FragmentTimerBinding
+            - timerService: TimerService
+            + onCreateView()
+            + onViewCreated()
+            + onDestroyView()
+            + startTimer()
+            + pauseTimer()
+            + resetTimer()
+        }
+    }
+
+    package "Alarm" {
+        class AlarmFragment {
+            - binding: FragmentAlarmBinding
+            - alarmViewModel: AlarmViewModel
+            + onCreateView()
+            + onViewCreated()
+            + setAlarm()
+            + cancelAlarm()
+        }
+
+        class AlarmAdapter {
+            - alarms: List<Alarm>
+            + onCreateViewHolder()
+            + onBindViewHolder()
+            + getItemCount()
+        }
+    }
+
+    package "WorldClock" {
+        class WorldClockFragment {
+            - binding: FragmentWorldClockBinding
+            - adapter: WorldClockAdapter
+            + onCreateView()
+            + onViewCreated()
+            + updateClocks()
+        }
+
+        class WorldClockAdapter {
+            - timeZones: List<TimeZone>
+            + onCreateViewHolder()
+            + onBindViewHolder()
+            + getItemCount()
+        }
+    }
+}
+
+package "Service" {
+    class TimerService {
+        - context: Context
+        - alarmManager: AlarmManager
+        + scheduleTimer()
+        + cancelTimer()
+        + showTimerNotification()
+    }
+
+    class AlarmService {
+        - context: Context
+        - alarmManager: AlarmManager
+        + scheduleAlarm()
+        + cancelAlarm()
+        + showAlarmNotification()
+    }
+}
+
+package "Receiver" {
+    class TimerReceiver {
+        + onReceive()
+    }
+
+    class AlarmReceiver {
+        + onReceive()
+    }
+}
+
+package "ViewModel" {
+    class AlarmViewModel {
+        - alarmDao: AlarmDao
+        + getAllAlarms(): LiveData<List<Alarm>>
+        + insertAlarm(Alarm)
+        + updateAlarm(Alarm)
+        + deleteAlarm(Alarm)
+    }
+
+    class TimeZoneViewModel {
+        - timeZoneDao: TimeZoneDao
+        + getAllTimeZones(): LiveData<List<TimeZone>>
+        + insertTimeZone(TimeZone)
+        + updateTimeZone(TimeZone)
+        + deleteTimeZone(TimeZone)
+    }
+}
+
+' Relaciones entre clases
+TimerFragment --> TimerService
+TimerFragment --> TimerReceiver
+AlarmFragment --> AlarmService
+AlarmFragment --> AlarmReceiver
+WorldClockFragment --> TimeZoneViewModel
+
+TimerService --> TimerDao
+AlarmService --> AlarmDao
+
+AlarmViewModel --> AlarmDao
+TimeZoneViewModel --> TimeZoneDao
+
+@enduml 

@@ -1,77 +1,16 @@
 package com.cardoso.shareyourtime.receiver;
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.media.AudioAttributes;
-import android.media.RingtoneManager;
-import android.net.Uri;
-import android.os.Build;
-import android.os.PowerManager;
-import androidx.core.app.NotificationCompat;
-import com.cardoso.shareyourtime.R;
+
+import com.cardoso.shareyourtime.service.TimerService;
 
 public class TimerReceiver extends BroadcastReceiver {
-    private static final String CHANNEL_ID = "TIMER_CHANNEL";
-    private static final int NOTIFICATION_ID = 2;
-
     @Override
     public void onReceive(Context context, Intent intent) {
-        PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-        PowerManager.WakeLock wakeLock = powerManager.newWakeLock(
-            PowerManager.PARTIAL_WAKE_LOCK,
-            "ShareYourTime::TimerWakeLock"
-        );
-        wakeLock.acquire(60000); // 1 minuto
-
-        createNotificationChannel(context);
-        showNotification(context);
-
-        wakeLock.release();
-    }
-
-    private void createNotificationChannel(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(
-                CHANNEL_ID,
-                "Canal del Temporizador",
-                NotificationManager.IMPORTANCE_HIGH
-            );
-            channel.setDescription("Canal para notificaciones del temporizador");
-            
-            Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-            AudioAttributes attributes = new AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_ALARM)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                .build();
-            
-            channel.setSound(alarmSound, attributes);
-            channel.enableVibration(true);
-            channel.setVibrationPattern(new long[]{1000, 1000, 1000, 1000, 1000});
-            
-            NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
-    }
-
-    private void showNotification(Context context) {
-        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-        
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_timer)
-            .setContentTitle(context.getString(R.string.timer))
-            .setContentText(context.getString(R.string.timer_finished))
-            .setPriority(NotificationCompat.PRIORITY_MAX)
-            .setCategory(NotificationCompat.CATEGORY_ALARM)
-            .setSound(alarmSound)
-            .setVibrate(new long[]{1000, 1000, 1000, 1000, 1000})
-            .setAutoCancel(true);
-
-        NotificationManager notificationManager = 
-            (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(NOTIFICATION_ID, builder.build());
+        TimerService timerService = new TimerService(context);
+        timerService.showTimerNotification();
     }
 } 
 
