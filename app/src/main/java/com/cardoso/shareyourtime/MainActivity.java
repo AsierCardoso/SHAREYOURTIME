@@ -39,7 +39,10 @@ import androidx.navigation.Navigation;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import java.io.ByteArrayOutputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Locale;
 import android.widget.RadioGroup;
 
@@ -54,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseStorage storage;
     private StorageReference storageRef;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
+        db = FirebaseFirestore.getInstance();
         
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -74,10 +79,40 @@ public class MainActivity extends AppCompatActivity {
         
         View headerView = navigationView.getHeaderView(0);
         profileImageView = headerView.findViewById(R.id.imageView);
+        TextView tvUserName = headerView.findViewById(R.id.tvUserName);
+        TextView tvUserEmail = headerView.findViewById(R.id.tvUserEmail);
         
         setupCameraLauncher();
         checkAndRequestPermissions();
-        loadProfileImage();
+        
+        if (mAuth.getCurrentUser() != null) {
+            // Cargar datos del usuario
+            String userId = mAuth.getCurrentUser().getUid();
+            db.collection("users").document(userId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        // Cargar nombre de usuario
+                        if (documentSnapshot.contains("username")) {
+                            tvUserName.setText(documentSnapshot.getString("username"));
+                        }
+                        
+                        // Cargar email
+                        tvUserEmail.setText(mAuth.getCurrentUser().getEmail());
+                        
+                        // Cargar imagen de perfil
+                        if (documentSnapshot.contains("imagen")) {
+                            String imageUrl = documentSnapshot.getString("imagen");
+                            if (imageUrl != null && !imageUrl.isEmpty()) {
+                                com.bumptech.glide.Glide.with(this)
+                                    .load(imageUrl)
+                                    .circleCrop()
+                                    .into(profileImageView);
+                            }
+                        }
+                    }
+                });
+        }
         
         if (profileImageView != null) {
             profileImageView.setOnClickListener(v -> checkCameraPermission());
@@ -128,24 +163,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void loadProfileImage() {
-        if (mAuth.getCurrentUser() != null) {
-            String userId = mAuth.getCurrentUser().getUid();
-            StorageReference imageRef = storageRef.child("profile_images").child(userId + ".jpg");
-            
-            imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                // Usar Glide para cargar la imagen
-                com.bumptech.glide.Glide.with(this)
-                    .load(uri)
-                    .circleCrop()
-                    .into(profileImageView);
-            }).addOnFailureListener(e -> {
-                // Si no hay imagen, cargar una por defecto
-                profileImageView.setImageResource(R.drawable.default_profile);
-            });
-        }
-    }
-
     private void setupCameraLauncher() {
         cameraLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -172,7 +189,25 @@ public class MainActivity extends AppCompatActivity {
 
             imageRef.putBytes(data)
                 .addOnSuccessListener(taskSnapshot -> {
-                    Toast.makeText(MainActivity.this, R.string.image_upload_success, Toast.LENGTH_SHORT).show();
+                    // Obtener la URL de descarga
+                    imageRef.getDownloadUrl()
+                        .addOnSuccessListener(uri -> {
+                            // Guardar la URL en Firestore
+                            Map<String, Object> userData = new HashMap<>();
+                            userData.put("imagen", uri.toString());
+                            
+                            db.collection("users").document(userId)
+                                .set(userData, com.google.firebase.firestore.SetOptions.merge())
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(MainActivity.this, R.string.image_upload_success, Toast.LENGTH_SHORT).show();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(MainActivity.this, getString(R.string.image_upload_failed, e.getMessage()), Toast.LENGTH_SHORT).show();
+                                });
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(MainActivity.this, getString(R.string.image_upload_failed, e.getMessage()), Toast.LENGTH_SHORT).show();
+                        });
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(MainActivity.this, getString(R.string.image_upload_failed, e.getMessage()), Toast.LENGTH_SHORT).show();
