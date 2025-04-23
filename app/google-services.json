@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "551593064922",
+    "project_id": "shareyourtime-1b448",
+    "storage_bucket": "shareyourtime-1b448.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:551593064922:android:61c238828ed04c04f4a8e3",
+        "android_client_info": {
+          "package_name": "com.cardoso.shareyourtime"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAiixHnZSknJPQlIuY4ltuFdP6p7ezQVvk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

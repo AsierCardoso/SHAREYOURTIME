@@ -1,0 +1,190 @@
+@startuml
+' Estilos y configuraciones
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classFontSize 14
+skinparam arrowColor #444444
+skinparam classBackgroundColor #F5F5F5
+skinparam classBorderColor #444444
+
+package "UI" {
+    package "Auth" {
+        class LoginActivity {
+            - binding: ActivityLoginBinding
+            - auth: FirebaseAuth
+            + onCreate()
+            + loginUser()
+            + registerUser()
+        }
+
+        class RegisterActivity {
+            - binding: ActivityRegisterBinding
+            - auth: FirebaseAuth
+            + onCreate()
+            + registerUser()
+            + uploadProfileImage()
+        }
+    }
+
+    package "Timer" {
+        class TimerFragment {
+            - binding: FragmentTimerBinding
+            - timerService: TimerService
+            + onCreateView()
+            + onViewCreated()
+            + onDestroyView()
+            + startTimer()
+            + pauseTimer()
+            + resetTimer()
+        }
+    }
+
+    package "Alarm" {
+        class AlarmFragment {
+            - binding: FragmentAlarmBinding
+            - alarmViewModel: AlarmViewModel
+            + onCreateView()
+            + onViewCreated()
+            + setAlarm()
+            + cancelAlarm()
+        }
+
+        class AlarmAdapter {
+            - alarms: List<Alarm>
+            + onCreateViewHolder()
+            + onBindViewHolder()
+            + getItemCount()
+        }
+    }
+
+    package "WorldClock" {
+        class WorldClockFragment {
+            - binding: FragmentWorldClockBinding
+            - adapter: WorldClockAdapter
+            - map: GoogleMap
+            + onCreateView()
+            + onViewCreated()
+            + updateClocks()
+            + updateLocation()
+        }
+
+        class WorldClockAdapter {
+            - timeZones: List<TimeZone>
+            + onCreateViewHolder()
+            + onBindViewHolder()
+            + getItemCount()
+        }
+
+        class WorldClockWidget {
+            - updateViews()
+            - updateTime()
+        }
+    }
+
+    package "Profile" {
+        class ProfileActivity {
+            - binding: ActivityProfileBinding
+            - storage: FirebaseStorage
+            + onCreate()
+            + updateProfile()
+            + uploadImage()
+        }
+    }
+}
+
+package "Service" {
+    class TimerService {
+        - context: Context
+        - alarmManager: AlarmManager
+        + scheduleTimer()
+        + cancelTimer()
+        + showTimerNotification()
+    }
+
+    class AlarmService {
+        - context: Context
+        - alarmManager: AlarmManager
+        + scheduleAlarm()
+        + cancelAlarm()
+        + showAlarmNotification()
+    }
+
+    class LocationService {
+        - context: Context
+        - fusedLocationClient: FusedLocationProviderClient
+        + startLocationUpdates()
+        + stopLocationUpdates()
+        + getTimeZone()
+    }
+
+    class FCMService {
+        - context: Context
+        + onMessageReceived()
+        + sendNotification()
+    }
+}
+
+package "Receiver" {
+    class TimerReceiver {
+        + onReceive()
+    }
+
+    class AlarmReceiver {
+        + onReceive()
+    }
+
+    class LocationReceiver {
+        + onReceive()
+    }
+}
+
+package "ViewModel" {
+    class AlarmViewModel {
+        - alarmDao: AlarmDao
+        + getAllAlarms(): LiveData<List<Alarm>>
+        + insertAlarm(Alarm)
+        + updateAlarm(Alarm)
+        + deleteAlarm(Alarm)
+    }
+
+    class TimeZoneViewModel {
+        - timeZoneDao: TimeZoneDao
+        + getAllTimeZones(): LiveData<List<TimeZone>>
+        + insertTimeZone(TimeZone)
+        + updateTimeZone(TimeZone)
+        + deleteTimeZone(TimeZone)
+    }
+
+    class UserViewModel {
+        - userRepository: UserRepository
+        + getUserData(): LiveData<User>
+        + updateUserData(User)
+        + uploadImage(Uri)
+    }
+}
+
+' Relaciones entre clases
+LoginActivity --> FirebaseAuth
+RegisterActivity --> FirebaseAuth
+RegisterActivity --> FirebaseStorage
+ProfileActivity --> FirebaseStorage
+WorldClockFragment --> LocationService
+WorldClockFragment --> GoogleMap
+WorldClockWidget --> TimeZoneViewModel
+FCMService --> FirebaseMessaging
+
+TimerFragment --> TimerService
+TimerFragment --> TimerReceiver
+AlarmFragment --> AlarmService
+AlarmFragment --> AlarmReceiver
+WorldClockFragment --> TimeZoneViewModel
+
+TimerService --> TimerDao
+AlarmService --> AlarmDao
+LocationService --> TimeZoneDao
+
+AlarmViewModel --> AlarmDao
+TimeZoneViewModel --> TimeZoneDao
+UserViewModel --> UserRepository
+
+@enduml 

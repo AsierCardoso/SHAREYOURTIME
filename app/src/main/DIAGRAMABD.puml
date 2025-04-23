@@ -1,0 +1,111 @@
+@startuml
+' Estilos y configuraciones
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classFontSize 14
+skinparam arrowColor #444444
+skinparam classBackgroundColor #F5F5F5
+skinparam classBorderColor #444444
+
+package "Database" {
+    package "Local" {
+        package "Entity" {
+            class Alarm {
+                + id: Long
+                + hour: Int
+                + minute: Int
+                + label: String
+                + isEnabled: Boolean
+                + repeatDays: List<Int>
+            }
+
+            class TimeZone {
+                + id: Long
+                + name: String
+                + offset: Int
+                + isSelected: Boolean
+            }
+
+            class Timer {
+                + id: Long
+                + duration: Long
+                + isRunning: Boolean
+                + startTime: Long
+            }
+        }
+
+        package "DAO" {
+            interface AlarmDao {
+                + insertAlarm(Alarm): Long
+                + updateAlarm(Alarm)
+                + deleteAlarm(Alarm)
+                + getAllAlarms(): List<Alarm>
+                + getEnabledAlarms(): List<Alarm>
+            }
+
+            interface TimeZoneDao {
+                + insertTimeZone(TimeZone): Long
+                + updateTimeZone(TimeZone)
+                + deleteTimeZone(TimeZone)
+                + getAllTimeZones(): List<TimeZone>
+                + getSelectedTimeZones(): List<TimeZone>
+            }
+
+            interface TimerDao {
+                + insertTimer(Timer): Long
+                + updateTimer(Timer)
+                + deleteTimer(Timer)
+                + getTimer(): Timer
+            }
+        }
+
+        class AppDatabase {
+            - static INSTANCE: AppDatabase
+            + getInstance(Context): AppDatabase
+            + alarmDao(): AlarmDao
+            + timeZoneDao(): TimeZoneDao
+            + timerDao(): TimerDao
+        }
+    }
+
+    package "Firebase" {
+        class User {
+            + uid: String
+            + email: String
+            + displayName: String
+            + photoUrl: String
+            + timeZone: String
+            + lastLogin: Timestamp
+        }
+
+        class UserSettings {
+            + userId: String
+            + theme: String
+            + language: String
+            + notificationEnabled: Boolean
+        }
+
+        class Notification {
+            + id: String
+            + userId: String
+            + title: String
+            + message: String
+            + timestamp: Timestamp
+            + read: Boolean
+        }
+    }
+}
+
+' Relaciones
+AppDatabase --> AlarmDao
+AppDatabase --> TimeZoneDao
+AppDatabase --> TimerDao
+
+AlarmDao --> Alarm
+TimeZoneDao --> TimeZone
+TimerDao --> Timer
+
+User --> UserSettings
+User --> Notification
+
+@enduml 
