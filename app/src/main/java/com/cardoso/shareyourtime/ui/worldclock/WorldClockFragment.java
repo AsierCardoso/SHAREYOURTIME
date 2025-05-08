@@ -2,21 +2,19 @@ package com.cardoso.shareyourtime.ui.worldclock;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.cardoso.shareyourtime.R;
+import com.cardoso.shareyourtime.MapActivity;
+import com.cardoso.shareyourtime.utils.TimeZoneManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
@@ -24,17 +22,19 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class WorldClockFragment extends Fragment {
-
+    private static final int REQUEST_LOCATION = 1001;
     private RecyclerView recyclerView;
     private WorldClockAdapter adapter;
     private List<TimeZone> timeZones;
     private Timer timer;
+    private TimeZoneManager timeZoneManager;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_world_clock, container, false);
 
-        recyclerView = root.findViewById(R.id.recycler_view);
+        timeZoneManager = new TimeZoneManager("AIzaSyAQYmGcJxl1dZr3aBJYIMeFF74Q0kTNwjk");
+        recyclerView = root.findViewById(R.id.recyclerViewTimeZones);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         
         timeZones = new ArrayList<>();
@@ -68,8 +68,11 @@ public class WorldClockFragment extends Fragment {
             }
         }).attachToRecyclerView(recyclerView);
 
-        FloatingActionButton fab = root.findViewById(R.id.fab);
-        fab.setOnClickListener(view -> showTimeZonePicker());
+        // Configurar el botón de añadir por ubicación
+        root.findViewById(R.id.btnAddByLocation).setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), MapActivity.class);
+            startActivityForResult(intent, REQUEST_LOCATION);
+        });
 
         // Configurar el temporizador para actualizar los relojes cada segundo
         timer = new Timer();
@@ -85,54 +88,17 @@ public class WorldClockFragment extends Fragment {
         return root;
     }
 
-    private void showTimeZonePicker() {
-        String[] availableTimeZones = TimeZone.getAvailableIDs();
-        List<String> timeZoneNames = new ArrayList<>();
-        List<String> timeZoneIds = new ArrayList<>();
-
-        // Zonas horarias principales que queremos mostrar
-        String[] mainTimeZones = {
-            "America/New_York",    // EST
-            "America/Chicago",     // CST
-            "America/Denver",      // MST
-            "America/Los_Angeles", // PST
-            "Europe/London",       // GMT
-            "Europe/Paris",        // CET
-            "Europe/Moscow",       // MSK
-            "Asia/Dubai",         // GST
-            "Asia/Shanghai",      // CST
-            "Asia/Tokyo",         // JST
-            "Australia/Sydney",   // AEST
-            "Pacific/Auckland"    // NZST
-        };
-
-        // Strings para los nombres de las zonas horarias
-        String[] timeZoneDisplayNames = {
-            getString(R.string.timezone_est),
-            getString(R.string.timezone_cst),
-            getString(R.string.timezone_mst),
-            getString(R.string.timezone_pst),
-            getString(R.string.timezone_gmt),
-            getString(R.string.timezone_cet),
-            getString(R.string.timezone_msk),
-            getString(R.string.timezone_gst),
-            getString(R.string.timezone_cst_asia),
-            getString(R.string.timezone_jst),
-            getString(R.string.timezone_aest),
-            getString(R.string.timezone_nzst)
-        };
-
-        for (int i = 0; i < mainTimeZones.length; i++) {
-            timeZoneNames.add(timeZoneDisplayNames[i]);
-            timeZoneIds.add(mainTimeZones[i]);
-        }
-
-        String[] items = timeZoneNames.toArray(new String[0]);
-        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                .setTitle(R.string.add_timezone)
-                .setItems(items, (dialog, which) -> {
-                    String selectedId = timeZoneIds.get(which);
-                    TimeZone selectedTimeZone = TimeZone.getTimeZone(selectedId);
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_LOCATION && resultCode == getActivity().RESULT_OK) {
+            double lat = data.getDoubleExtra("lat", 0);
+            double lon = data.getDoubleExtra("lon", 0);
+            
+            timeZoneManager.getTimeZone(lat, lon, new TimeZoneManager.TimeZoneCallback() {
+                @Override
+                public void onTimeZoneReceived(String timeZoneId) {
+                    TimeZone selectedTimeZone = TimeZone.getTimeZone(timeZoneId);
                     
                     // Verificar si la zona horaria ya está en la lista
                     boolean exists = false;
@@ -149,8 +115,16 @@ public class WorldClockFragment extends Fragment {
                     } else {
                         Toast.makeText(getContext(), R.string.timezone_already_added, Toast.LENGTH_SHORT).show();
                     }
-                })
-                .show();
+                }
+
+                @Override
+                public void onError(String error) {
+                    Toast.makeText(getContext(), 
+                        getString(R.string.error_getting_timezone, error), 
+                        Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 
     @Override
