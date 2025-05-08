@@ -104,4 +104,7 @@
     <string name="registration_failed">Registration failed: %1$s</string>
     <string name="save_data_failed">Failed to save data: %1$s</string>
     <string name="menu_logout">Logout</string>
+    <string name="accept">Accept</string>
+    <string name="drag_marker">Drag the marker</string>
+
 </resources> 

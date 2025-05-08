@@ -7,6 +7,8 @@
     <string name="dark_theme">Tema Oscuro</string>
     <string name="light_theme">Tema Claro</string>
     <string name="language">Idioma</string>
+    <string name="accept">Aceptar</string>
+    <string name="drag_marker">Arrastra el marcador</string>
     <string name="lang_es">Español</string>
     <string name="lang_en">Inglés</string>
     <string name="english">Inglés</string>
@@ -109,4 +111,7 @@
     <string name="camera_permission_denied">Permiso de cámara denegado</string>
     <string name="image_upload_success">Imagen subida correctamente</string>
     <string name="image_upload_failed">Error al subir la imagen: %1$s</string>
+    <string name="google_maps_key">AIzaSyAiixHnZSknJPQlIuY4ltuFdP6p7ezQVvk</string>
+    <string name="add_by_location">Añadir mediante ubicación</string>
+    <string name="error_getting_timezone">Error al obtener la zona horaria: %1$s</string>
 </resources>

@@ -66,4 +66,7 @@
     <string name="start">Iniciar</string>
     <string name="reset">Reiniciar</string>
     <string name="lap">Vuelta</string>
+    <string name="accept">Aceptar</string>
+    <string name="drag_marker">Arrastra el marcador</string>
+
 </resources>
