@@ -11,12 +11,20 @@ public class PreferencesManager {
     private static final String KEY_THEME = "theme";
     private static final String KEY_LANGUAGE = "language";
     
+    private static PreferencesManager instance;
     private final SharedPreferences preferences;
     private final Context context;
 
-    public PreferencesManager(Context context) {
-        this.context = context;
+    private PreferencesManager(Context context) {
+        this.context = context.getApplicationContext();
         this.preferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+    }
+
+    public static synchronized PreferencesManager getInstance(Context context) {
+        if (instance == null) {
+            instance = new PreferencesManager(context);
+        }
+        return instance;
     }
 
     public void setTheme(boolean isDarkTheme) {

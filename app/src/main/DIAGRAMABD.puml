@@ -7,105 +7,73 @@ skinparam arrowColor #444444
 skinparam classBackgroundColor #F5F5F5
 skinparam classBorderColor #444444
 
-package "Database" {
-    package "Local" {
-        package "Entity" {
-            class Alarm {
-                + id: Long
-                + hour: Int
-                + minute: Int
-                + label: String
-                + isEnabled: Boolean
-                + repeatDays: List<Int>
-            }
-
-            class TimeZone {
-                + id: Long
-                + name: String
-                + offset: Int
-                + isSelected: Boolean
-            }
-
-            class Timer {
-                + id: Long
-                + duration: Long
-                + isRunning: Boolean
-                + startTime: Long
-            }
-        }
-
-        package "DAO" {
-            interface AlarmDao {
-                + insertAlarm(Alarm): Long
-                + updateAlarm(Alarm)
-                + deleteAlarm(Alarm)
-                + getAllAlarms(): List<Alarm>
-                + getEnabledAlarms(): List<Alarm>
-            }
-
-            interface TimeZoneDao {
-                + insertTimeZone(TimeZone): Long
-                + updateTimeZone(TimeZone)
-                + deleteTimeZone(TimeZone)
-                + getAllTimeZones(): List<TimeZone>
-                + getSelectedTimeZones(): List<TimeZone>
-            }
-
-            interface TimerDao {
-                + insertTimer(Timer): Long
-                + updateTimer(Timer)
-                + deleteTimer(Timer)
-                + getTimer(): Timer
-            }
-        }
-
-        class AppDatabase {
-            - static INSTANCE: AppDatabase
-            + getInstance(Context): AppDatabase
-            + alarmDao(): AlarmDao
-            + timeZoneDao(): TimeZoneDao
-            + timerDao(): TimerDao
-        }
+package "Firebase" {
+    class Firestore {
+        + collection: users
+        + document: userId
+        + timezones: List
+        + alarms: List
+        + theme: boolean
+        + language: String
     }
 
-    package "Firebase" {
-        class User {
-            + uid: String
-            + email: String
-            + displayName: String
-            + photoUrl: String
-            + timeZone: String
-            + lastLogin: Timestamp
-        }
+    class FirebaseAuth {
+        + signIn(email, password)
+        + signUp(email, password)
+        + signOut()
+        + getCurrentUser()
+    }
 
-        class UserSettings {
-            + userId: String
-            + theme: String
-            + language: String
-            + notificationEnabled: Boolean
-        }
-
-        class Notification {
-            + id: String
-            + userId: String
-            + title: String
-            + message: String
-            + timestamp: Timestamp
-            + read: Boolean
-        }
+    class FirebaseStorage {
+        + uploadProfileImage(userId, imageUri)
+        + getProfileImageUrl(userId)
     }
 }
 
-' Relaciones
-AppDatabase --> AlarmDao
-AppDatabase --> TimeZoneDao
-AppDatabase --> TimerDao
+package "Utils" {
+    class FirestoreManager {
+        - db: FirebaseFirestore
+        - auth: FirebaseAuth
+        + saveTimeZones(List)
+        + loadTimeZones()
+        + saveAlarms(List)
+        + loadAlarms()
+        + saveTheme(boolean)
+        + saveLanguage(String)
+    }
 
-AlarmDao --> Alarm
-TimeZoneDao --> TimeZone
-TimerDao --> Timer
+    class TimeZoneManager {
+        - apiKey: String
+        + getTimeZone(lat, lon)
+    }
+}
 
-User --> UserSettings
-User --> Notification
+package "Models" {
+    class User {
+        + userId: String
+        + email: String
+        + timezones: List
+        + alarms: List
+        + theme: boolean
+        + language: String
+    }
 
-@enduml 
+    class TimeZone {
+        + id: String
+        + displayName: String
+        + offset: int
+    }
+
+    class Alarm {
+        + time: String
+    }
+}
+
+FirestoreManager --> Firestore
+FirestoreManager --> FirebaseAuth
+FirestoreManager --> User
+TimeZoneManager --> TimeZone
+User --> TimeZone
+User --> Alarm
+
+@enduml

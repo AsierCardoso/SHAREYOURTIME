@@ -4,9 +4,11 @@ import android.app.Application;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+
 import com.cardoso.shareyourtime.data.Alarm;
 import com.cardoso.shareyourtime.data.AlarmDao;
 import com.cardoso.shareyourtime.data.AppDatabase;
+
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -43,9 +45,13 @@ public class AlarmViewModel extends AndroidViewModel {
         executorService.execute(() -> alarmDao.delete(alarm));
     }
 
+    public void deleteAll() {
+        executorService.execute(alarmDao::deleteAll);
+    }
+
     @Override
     protected void onCleared() {
         super.onCleared();
         executorService.shutdown();
     }
-} 
+}

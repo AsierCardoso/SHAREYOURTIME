@@ -14,7 +14,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.cardoso.shareyourtime.R;
 import com.cardoso.shareyourtime.MapActivity;
 import com.cardoso.shareyourtime.utils.TimeZoneManager;
+import com.cardoso.shareyourtime.utils.FirestoreManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
@@ -28,53 +30,52 @@ public class WorldClockFragment extends Fragment {
     private List<TimeZone> timeZones;
     private Timer timer;
     private TimeZoneManager timeZoneManager;
+    private FirestoreManager firestoreManager;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_world_clock, container, false);
 
         timeZoneManager = new TimeZoneManager("AIzaSyAQYmGcJxl1dZr3aBJYIMeFF74Q0kTNwjk");
+        firestoreManager = new FirestoreManager();
+
         recyclerView = root.findViewById(R.id.recyclerViewTimeZones);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        
+
         timeZones = new ArrayList<>();
-        // Agregar la zona horaria local por defecto
-        timeZones.add(TimeZone.getDefault());
-        
-        adapter = new WorldClockAdapter(timeZones);
+
+        adapter = new WorldClockAdapter(timeZones, requireContext());
         recyclerView.setAdapter(adapter);
 
-        // Añadir funcionalidad de deslizar para eliminar
+        loadSavedTimeZones(); // 👈 Cargar desde Firestore al iniciar
+
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
             @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, 
-                                 @NonNull RecyclerView.ViewHolder target) {
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder,
+                                  @NonNull RecyclerView.ViewHolder target) {
                 return false;
             }
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 int position = viewHolder.getAdapterPosition();
-                // No permitir eliminar la zona horaria predeterminada (primera posición)
                 if (position == 0) {
                     adapter.notifyItemChanged(0);
                     Toast.makeText(getContext(), R.string.cannot_remove_default_timezone, Toast.LENGTH_SHORT).show();
                     return;
                 }
-                
-                // Eliminar la zona horaria de la lista
+
                 timeZones.remove(position);
                 adapter.notifyItemRemoved(position);
+                saveTimeZones(); // 👈 Guardar cambios
             }
         }).attachToRecyclerView(recyclerView);
 
-        // Configurar el botón de añadir por ubicación
         root.findViewById(R.id.btnAddByLocation).setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), MapActivity.class);
             startActivityForResult(intent, REQUEST_LOCATION);
         });
 
-        // Configurar el temporizador para actualizar los relojes cada segundo
         timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -94,13 +95,12 @@ public class WorldClockFragment extends Fragment {
         if (requestCode == REQUEST_LOCATION && resultCode == getActivity().RESULT_OK) {
             double lat = data.getDoubleExtra("lat", 0);
             double lon = data.getDoubleExtra("lon", 0);
-            
+
             timeZoneManager.getTimeZone(lat, lon, new TimeZoneManager.TimeZoneCallback() {
                 @Override
                 public void onTimeZoneReceived(String timeZoneId) {
                     TimeZone selectedTimeZone = TimeZone.getTimeZone(timeZoneId);
-                    
-                    // Verificar si la zona horaria ya está en la lista
+
                     boolean exists = false;
                     for (TimeZone tz : timeZones) {
                         if (tz.getID().equals(selectedTimeZone.getID())) {
@@ -108,10 +108,11 @@ public class WorldClockFragment extends Fragment {
                             break;
                         }
                     }
-                    
+
                     if (!exists) {
                         timeZones.add(selectedTimeZone);
                         adapter.notifyDataSetChanged();
+                        saveTimeZones(); // 👈 Guardar tras añadir
                     } else {
                         Toast.makeText(getContext(), R.string.timezone_already_added, Toast.LENGTH_SHORT).show();
                     }
@@ -119,12 +120,51 @@ public class WorldClockFragment extends Fragment {
 
                 @Override
                 public void onError(String error) {
-                    Toast.makeText(getContext(), 
-                        getString(R.string.error_getting_timezone, error), 
-                        Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(),
+                            getString(R.string.error_getting_timezone, error),
+                            Toast.LENGTH_SHORT).show();
                 }
             });
         }
+    }
+
+    private void saveTimeZones() {
+        List<String> ids = new ArrayList<>();
+        for (TimeZone tz : timeZones) {
+            ids.add(tz.getID());
+        }
+
+        String defaultZone = timeZones.isEmpty() ? TimeZone.getDefault().getID() : timeZones.get(0).getID();
+
+        firestoreManager.saveTimeZones(ids, defaultZone, new FirestoreManager.FirestoreCallback() {
+            @Override
+            public void onSuccess() {
+                // Guardado con éxito (puedes mostrar un log si quieres)
+            }
+
+            @Override
+            public void onError(String error) {
+                Toast.makeText(getContext(), "Error al guardar zonas: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void loadSavedTimeZones() {
+        firestoreManager.loadTimeZones(new FirestoreManager.TimeZonesCallback() {
+            @Override
+            public void onTimeZonesLoaded(List<String> tzIds, String defaultZoneId) {
+                timeZones.clear();
+                for (String id : tzIds) {
+                    timeZones.add(TimeZone.getTimeZone(id));
+                }
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onError(String error) {
+                Toast.makeText(getContext(), "Error al cargar zonas: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
@@ -135,4 +175,4 @@ public class WorldClockFragment extends Fragment {
             timer = null;
         }
     }
-} 
+}

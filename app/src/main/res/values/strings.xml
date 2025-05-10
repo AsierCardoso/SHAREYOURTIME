@@ -114,4 +114,6 @@
     <string name="google_maps_key">AIzaSyAiixHnZSknJPQlIuY4ltuFdP6p7ezQVvk</string>
     <string name="add_by_location">Añadir mediante ubicación</string>
     <string name="error_getting_timezone">Error al obtener la zona horaria: %1$s</string>
+    <string name="error_loading_timezones">Error al cargar las zonas horarias: %1$s</string>
+    <string name="error_saving_timezones">Error al guardar las zonas horarias: %1$s</string>
 </resources>

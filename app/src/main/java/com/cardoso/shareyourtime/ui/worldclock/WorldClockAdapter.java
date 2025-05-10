@@ -1,5 +1,6 @@
 package com.cardoso.shareyourtime.ui.worldclock;
 
+import android.content.Context;
 import android.content.Intent;
 import android.provider.Settings;
 import android.view.LayoutInflater;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.cardoso.shareyourtime.R;
+import com.cardoso.shareyourtime.utils.PreferencesManager;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -20,11 +22,13 @@ public class WorldClockAdapter extends RecyclerView.Adapter<WorldClockAdapter.Vi
     private final List<TimeZone> timeZones;
     private final SimpleDateFormat timeFormat;
     private final SimpleDateFormat dateFormat;
+    private final Locale appLocale;
 
-    public WorldClockAdapter(List<TimeZone> timeZones) {
+    public WorldClockAdapter(List<TimeZone> timeZones, Context context) {
         this.timeZones = timeZones;
-        this.timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
-        this.dateFormat = new SimpleDateFormat("EEEE, d MMMM yyyy", Locale.getDefault());
+        this.appLocale = new Locale(PreferencesManager.getInstance(context).getLanguage());
+        this.timeFormat = new SimpleDateFormat("HH:mm:ss", appLocale);
+        this.dateFormat = new SimpleDateFormat("EEEE, d MMMM yyyy", appLocale);
     }
 
     @NonNull
@@ -43,7 +47,7 @@ public class WorldClockAdapter extends RecyclerView.Adapter<WorldClockAdapter.Vi
         timeFormat.setTimeZone(timeZone);
         dateFormat.setTimeZone(timeZone);
 
-        holder.timeZoneName.setText(timeZone.getDisplayName());
+        holder.timeZoneName.setText(timeZone.getDisplayName(appLocale));
         holder.currentTime.setText(timeFormat.format(now));
         holder.currentDate.setText(dateFormat.format(now));
 

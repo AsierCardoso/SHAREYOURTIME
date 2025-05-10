@@ -1,0 +1,147 @@
+@startuml
+' Estilos y configuraciones
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classFontSize 14
+skinparam arrowColor #444444
+skinparam classBackgroundColor #F5F5F5
+skinparam classBorderColor #444444
+
+package "UI" {
+    package "Auth" {
+        class LoginActivity {
+            - binding: ActivityLoginBinding
+            - auth: FirebaseAuth
+            + onCreate()
+            + loginUser()
+            + registerUser()
+        }
+
+        class RegisterActivity {
+            - binding: ActivityRegisterBinding
+            - auth: FirebaseAuth
+            + onCreate()
+            + registerUser()
+            + uploadProfileImage()
+        }
+    }
+
+    package "WorldClock" {
+        class WorldClockFragment {
+            - recyclerView: RecyclerView
+            - adapter: WorldClockAdapter
+            - timeZones: List<TimeZone>
+            - timer: Timer
+            - timeZoneManager: TimeZoneManager
+            - firestoreManager: FirestoreManager
+            + onCreateView()
+            + onResume()
+            + loadSavedTimeZones()
+            + saveTimeZones()
+            + onActivityResult()
+        }
+
+        class WorldClockAdapter {
+            - timeZones: List<TimeZone>
+            - timeFormat: SimpleDateFormat
+            - dateFormat: SimpleDateFormat
+            + onCreateViewHolder()
+            + onBindViewHolder()
+            + getItemCount()
+        }
+    }
+
+    package "Alarm" {
+        class AlarmFragment {
+            - binding: FragmentAlarmBinding
+            - firestoreManager: FirestoreManager
+            + onCreateView()
+            + onViewCreated()
+            + setAlarm()
+            + cancelAlarm()
+        }
+
+        class AlarmAdapter {
+            - alarms: List<String>
+            + onCreateViewHolder()
+            + onBindViewHolder()
+            + getItemCount()
+        }
+    }
+
+    package "Timer" {
+        class TimerFragment {
+            - binding: FragmentTimerBinding
+            - timer: CountDownTimer
+            + onCreateView()
+            + onViewCreated()
+            + startTimer()
+            + pauseTimer()
+            + resetTimer()
+        }
+    }
+
+    package "Stopwatch" {
+        class StopwatchFragment {
+            - binding: FragmentStopwatchBinding
+            - handler: Handler
+            - startTime: long
+            + onCreateView()
+            + onViewCreated()
+            + startStopwatch()
+            + pauseStopwatch()
+            + resetStopwatch()
+            + addLap()
+        }
+    }
+
+    package "Settings" {
+        class SettingsFragment {
+            - binding: FragmentSettingsBinding
+            - settingsManager: SettingsManager
+            + onCreateView()
+            + onViewCreated()
+            + setTheme()
+            + setLanguage()
+        }
+    }
+}
+
+package "Utils" {
+    class FirestoreManager {
+        - db: FirebaseFirestore
+        - auth: FirebaseAuth
+        + saveTimeZones()
+        + loadTimeZones()
+        + saveAlarms()
+        + loadAlarms()
+        + saveTheme()
+        + saveLanguage()
+    }
+
+    class TimeZoneManager {
+        - apiKey: String
+        + getTimeZone()
+    }
+
+    class SettingsManager {
+        - context: Context
+        - firestoreManager: FirestoreManager
+        + applySettings()
+        + setTheme()
+        + setLanguage()
+    }
+}
+
+' Relaciones
+WorldClockFragment --> WorldClockAdapter
+WorldClockFragment --> TimeZoneManager
+WorldClockFragment --> FirestoreManager
+AlarmFragment --> AlarmAdapter
+AlarmFragment --> FirestoreManager
+TimerFragment --> SettingsManager
+StopwatchFragment --> SettingsManager
+SettingsFragment --> SettingsManager
+SettingsManager --> FirestoreManager
+
+@enduml 

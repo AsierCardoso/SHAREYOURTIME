@@ -106,5 +106,6 @@
     <string name="menu_logout">Logout</string>
     <string name="accept">Accept</string>
     <string name="drag_marker">Drag the marker</string>
+    <string name="add_by_location">Add by Location</string>
 
 </resources> 
