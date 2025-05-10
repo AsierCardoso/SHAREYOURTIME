@@ -23,12 +23,24 @@ public class WorldClockAdapter extends RecyclerView.Adapter<WorldClockAdapter.Vi
     private final SimpleDateFormat timeFormat;
     private final SimpleDateFormat dateFormat;
     private final Locale appLocale;
+    private final TimeZone defaultTimeZone;
 
     public WorldClockAdapter(List<TimeZone> timeZones, Context context) {
         this.timeZones = timeZones;
         this.appLocale = new Locale(PreferencesManager.getInstance(context).getLanguage());
         this.timeFormat = new SimpleDateFormat("HH:mm:ss", appLocale);
         this.dateFormat = new SimpleDateFormat("EEEE, d MMMM yyyy", appLocale);
+        this.defaultTimeZone = timeZones.isEmpty() ? TimeZone.getDefault() : timeZones.get(0);
+    }
+
+    private String getTimeDifference(TimeZone timeZone) {
+        int diffMillis = timeZone.getOffset(System.currentTimeMillis()) - 
+                        defaultTimeZone.getOffset(System.currentTimeMillis());
+        int diffHours = diffMillis / (60 * 60 * 1000);
+        if (diffHours == 0) {
+            return "";
+        }
+        return String.format(appLocale, "(%+d)", diffHours);
     }
 
     @NonNull
@@ -47,7 +59,9 @@ public class WorldClockAdapter extends RecyclerView.Adapter<WorldClockAdapter.Vi
         timeFormat.setTimeZone(timeZone);
         dateFormat.setTimeZone(timeZone);
 
-        holder.timeZoneName.setText(timeZone.getDisplayName(appLocale));
+        String timeDiff = getTimeDifference(timeZone);
+        String timeZoneName = timeZone.getDisplayName(appLocale);
+        holder.timeZoneName.setText(timeDiff.isEmpty() ? timeZoneName : timeZoneName + " " + timeDiff);
         holder.currentTime.setText(timeFormat.format(now));
         holder.currentDate.setText(dateFormat.format(now));
 

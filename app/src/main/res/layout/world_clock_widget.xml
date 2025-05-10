@@ -3,29 +3,38 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:columnCount="3"
+    android:rowCount="1"
     android:padding="8dp"
     android:background="@drawable/widget_background">
 
     <TextView
-        android:id="@+id/widget_timezone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:textColor="@android:color/white"/>
-
-    <TextView
         android:id="@+id/widget_time"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/white"/>
+        android:textColor="@android:color/white"
+        android:gravity="center"
+        android:text="00:00:00"/>
 
     <TextView
         android:id="@+id/widget_date"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="14sp"
-        android:textColor="@android:color/white"/>
+        android:textColor="@android:color/white"
+        android:gravity="center"
+        android:layout_marginTop="4dp"
+        android:text="Fecha"/>
+
+    <TextView
+        android:id="@+id/widget_timezone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:textColor="@android:color/white"
+        android:gravity="center"
+        android:layout_marginTop="4dp"
+        android:text="Zona Horaria"/>
 
 </LinearLayout> 

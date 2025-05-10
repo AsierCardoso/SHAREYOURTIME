@@ -10,6 +10,7 @@ public class PreferencesManager {
     private static final String PREF_NAME = "app_preferences";
     private static final String KEY_THEME = "theme";
     private static final String KEY_LANGUAGE = "language";
+    private static final String KEY_DEFAULT_TIMEZONE = "default_timezone";
     
     private static PreferencesManager instance;
     private final SharedPreferences preferences;
@@ -42,6 +43,14 @@ public class PreferencesManager {
 
     public String getLanguage() {
         return preferences.getString(KEY_LANGUAGE, "en");
+    }
+
+    public void setDefaultTimeZone(String timeZoneId) {
+        preferences.edit().putString(KEY_DEFAULT_TIMEZONE, timeZoneId).apply();
+    }
+
+    public String getDefaultTimeZone() {
+        return preferences.getString(KEY_DEFAULT_TIMEZONE, "UTC");
     }
 
     private void updateLocale(String languageCode) {
