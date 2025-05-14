@@ -23,7 +23,7 @@
     <string name="date">Date</string>
     <string name="completed">Completed</string>
     <string name="save">Save</string>
-    <string name="cancel">Cancel</string>
+    <string name="cancel">Cancelar</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">ShareTime</string>
@@ -85,4 +85,5 @@
     <string name="alarm_title">Alarm Title</string>
     <string name="alarm_description">Alarm Description</string>
     <string name="cannot_remove_default_timezone">No se puede eliminar la zona horaria predeterminada</string>
+    <string name="select_timezone">Seleccionar zona horaria</string>
 </resources>

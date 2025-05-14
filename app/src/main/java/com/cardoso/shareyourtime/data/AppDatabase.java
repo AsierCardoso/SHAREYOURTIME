@@ -6,14 +6,13 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
-@Database(entities = {Alarm.class, Task.class}, version = 1)
+@Database(entities = {Alarm.class, TimeZone.class}, version = 1)
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
     private static volatile AppDatabase INSTANCE;
 
     public abstract AlarmDao alarmDao();
-
-    public abstract TaskDao taskDao();
+    public abstract TimeZoneDao timeZoneDao();
 
     public static AppDatabase getDatabase(final Context context) {
         if (INSTANCE == null) {

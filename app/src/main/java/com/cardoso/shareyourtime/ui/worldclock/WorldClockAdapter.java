@@ -9,22 +9,30 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.cardoso.shareyourtime.R;
+import com.cardoso.shareyourtime.data.TimeZone;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.TimeZone;
 
 public class WorldClockAdapter extends RecyclerView.Adapter<WorldClockAdapter.ViewHolder> {
 
-    private final List<TimeZone> timeZones;
+    private List<com.cardoso.shareyourtime.data.TimeZone> timeZones;
     private final SimpleDateFormat timeFormat;
     private final SimpleDateFormat dateFormat;
 
-    public WorldClockAdapter(List<TimeZone> timeZones) {
+    public WorldClockAdapter(List<com.cardoso.shareyourtime.data.TimeZone> timeZones) {
         this.timeZones = timeZones;
         this.timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
         this.dateFormat = new SimpleDateFormat("EEEE, d MMMM yyyy", Locale.getDefault());
+    }
+
+    public void setTimeZones(List<com.cardoso.shareyourtime.data.TimeZone> timeZones) {
+        this.timeZones = timeZones;
+    }
+
+    public List<com.cardoso.shareyourtime.data.TimeZone> getTimeZones() {
+        return timeZones;
     }
 
     @NonNull
@@ -37,13 +45,14 @@ public class WorldClockAdapter extends RecyclerView.Adapter<WorldClockAdapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        TimeZone timeZone = timeZones.get(position);
+        com.cardoso.shareyourtime.data.TimeZone timeZone = timeZones.get(position);
+        java.util.TimeZone javaTimeZone = java.util.TimeZone.getTimeZone(timeZone.getName());
+        
         Date now = new Date();
-
-        timeFormat.setTimeZone(timeZone);
-        dateFormat.setTimeZone(timeZone);
-
-        holder.timeZoneName.setText(timeZone.getDisplayName());
+        timeFormat.setTimeZone(javaTimeZone);
+        dateFormat.setTimeZone(javaTimeZone);
+        
+        holder.timeZoneName.setText(timeZone.getName());
         holder.currentTime.setText(timeFormat.format(now));
         holder.currentDate.setText(dateFormat.format(now));
 
