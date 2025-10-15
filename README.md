@@ -165,13 +165,13 @@ app/
 
 ## 🌿 Branches
 
-### Main Branch (Current)
+### Main Branch (MainV2)
 - **Full-featured version** with all capabilities
 - **Firebase integration** for authentication and data storage
 - **Google Maps integration** for location-based features
 - **Complete user management** system
 
-### Alternative Branch (Legacy)
+### Alternative Branch (Current)
 - **Simplified version** without Firebase
 - **No authentication** system
 - **No Google Maps** integration
